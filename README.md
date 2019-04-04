@@ -1,5 +1,6 @@
 # DragFloatingButton
 1、应用内悬浮框 2、桌面悬浮框
+
 ![linear](https://github.com/IRVING18/FlowLayout/blob/master/float1.gif)
 ## 一、应用内悬浮框实现
 ### 1、实现思路
