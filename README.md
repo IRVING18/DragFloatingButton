@@ -1,6 +1,6 @@
 # DragFloatingButton
 1、应用内悬浮框 2、桌面悬浮框
-
+![linear](https://github.com/IRVING18/FlowLayout/blob/master/float1.gif)
 ## 一、应用内悬浮框实现
 ### 1、实现思路
 - 1.1 实现可拖动的view，首先想到肯定是onTouchEvent()去监听手势事件
