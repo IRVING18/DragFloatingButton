@@ -113,5 +113,98 @@
 ```
 
 ### 2、实现代码
+```java
+  /**
+     * 显示悬浮框
+     *
+     * @param view     :显示的view
+     * @param activity
+     */
+    public static void showDragTableButton(View view, Activity activity) {
+
+        if (mWindowManager == null) {
+            mWindowManager = (WindowManager) activity.getSystemService(Context.WINDOW_SERVICE);
+        }
+        int screenWidth = 0, screenHeight = 0;
+        if (mWindowManager != null) {
+            //获取屏幕的宽和高
+            Point point = new Point();
+            mWindowManager.getDefaultDisplay().getSize(point);
+            screenWidth = point.x;
+            screenHeight = point.y;
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
+            layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            //设置type
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                //26及以上必须使用TYPE_APPLICATION_OVERLAY   @deprecated TYPE_PHONE
+                layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+            } else {
+                layoutParams.type = WindowManager.LayoutParams.TYPE_PHONE;
+            }
+            //设置flags
+            layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                    | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED;
+            layoutParams.gravity = Gravity.START | Gravity.TOP;
+            //背景设置成透明
+            layoutParams.format = PixelFormat.TRANSPARENT;
+            layoutParams.x = screenWidth;
+            layoutParams.y = screenHeight / 2;
+            //将View添加到屏幕上
+            mWindowManager.addView(view, layoutParams);
+        }
+    }
+
 ```
 
+```java
+ public boolean onTouchEvent(MotionEvent event) {
+        //获取相对屏幕的X，Y
+        int rawX = (int) event.getRawX();
+        int rawY = (int) event.getRawY();
+        switch (event.getAction() & MotionEvent.ACTION_MASK) {
+            case MotionEvent.ACTION_DOWN:
+                startX = lastX = rawX;
+                startY = lastY = rawY;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                //计算手指移动的距离
+                float x = rawX - lastX;
+                float y = rawY - lastY;
+                if (getLayoutParams() instanceof WindowManager.LayoutParams) {
+                    mLayoutParams = (WindowManager.LayoutParams) getLayoutParams();
+                    //将移动距离累加到Lp中
+                    mLayoutParams.x += (int) x;
+                    mLayoutParams.y += (int) y;
+                    //将Lp设置给DragTableButton
+                    windowManager.updateViewLayout(this, mLayoutParams);
+                }
+                lastX = rawX;
+                lastY = rawY;
+                break;
+            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_UP:
+                int dx = (int) event.getRawX() - startX;
+                int dy = (int) event.getRawY() - startY;
+                if (Math.abs(dx) < 3 && Math.abs(dy) < 3) {
+                    performClick();//重点，确保DragFloatActionButton2.setOnclickListener生效
+                    break;
+                }
+                if (rawX >= screenWidth / 2) {
+                    //靠右吸附
+                    ObjectAnimator oa = ObjectAnimator.ofFloat(this, "lp_x", mLayoutParams.x, screenWidth - getWidth());
+                    oa.setInterpolator(new DecelerateInterpolator());
+                    oa.setDuration(500);
+                    oa.start();
+                } else {
+                    //靠左吸附
+                    ObjectAnimator oa = ObjectAnimator.ofFloat(this, "lp_x", mLayoutParams.x, 0);
+                    oa.setInterpolator(new DecelerateInterpolator());
+                    oa.setDuration(500);
+                    oa.start();
+                }
+                break;
+        }
+        return true;
+    }
+```
