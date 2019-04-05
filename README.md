@@ -107,4 +107,4 @@
 - 1.1 和应用内悬浮框一样，都是通过onTouchEvent来处理手指滑动。
 - 1.2 只是位移算出来之后是通过WindowManager.LayoutParams.x/y来设置移动的，而不是setX/Y()了
 - 1.3 显示在桌面上需要WindowManager.addView()来设置到桌面
-- 1.4 windowManager需要 <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+- 1.4 windowManager需要 <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/> 
